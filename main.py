@@ -15,13 +15,17 @@ def home():
 def stream_audio(video_id: str, request: Request):
     url = f"https://www.youtube.com/watch?v={video_id}"
     ydl_opts = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "format": "bestaudio/best",
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["tv", "web_safari", "mweb"]
+            }
+        },
     }
 
-    # Copy read-only Render secret to writable /tmp folder
     if os.path.exists("/etc/secrets/cookies.txt"):
         shutil.copy("/etc/secrets/cookies.txt", "/tmp/cookies.txt")
         ydl_opts["cookiefile"] = "/tmp/cookies.txt"
