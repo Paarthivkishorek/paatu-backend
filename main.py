@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 import yt_dlp
 import requests
 import os
+import shutil
 
 app = FastAPI()
 
@@ -18,16 +19,12 @@ def stream_audio(video_id: str, request: Request):
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android_vr", "tv", "ios"]
-            }
-        },
     }
 
-    # Optional: If cookies.txt is added on Render later, it will auto-use it
+    # Copy read-only Render secret to writable /tmp folder
     if os.path.exists("/etc/secrets/cookies.txt"):
-        ydl_opts["cookiefile"] = "/etc/secrets/cookies.txt"
+        shutil.copy("/etc/secrets/cookies.txt", "/tmp/cookies.txt")
+        ydl_opts["cookiefile"] = "/tmp/cookies.txt"
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
